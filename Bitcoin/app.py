@@ -1,32 +1,21 @@
+import streamlit as st
 import numpy as np
-from flask import Flask, request, jsonify, render_template
 import pickle
 
-app = Flask(__name__)
+# Load the model
 model = pickle.load(open('crypto_model.pkl', 'rb'))
 
+# Create the Streamlit app
+st.title('Crypto Price Prediction')
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+# Input field for opening price
+opening_price = st.number_input('Enter Opening Price:', value=0.0)
 
-@app.route('/predict',methods=['POST'])
-def predict():
-    '''
-    For rendering results on HTML GUI
-    '''
-    
-    data = request.form['opening_price'] 
-    input = float(data)
-
-	# convert the data into numpy array and perform prediction
-    prediction = model.predict([[np.array(input)]])
-    
-    
+# Prediction button
+if st.button('Predict'):
+    # Make prediction
+    prediction = model.predict([[np.array(opening_price)]])
     output = np.round(prediction[0], 2)
 
-    return render_template('index.html', prediction_text='Crypto Price should be $ {}'.format(output))
-
-
-if __name__ == "__main__":
-    app.run(debug=False)
+    # Display prediction
+    st.success('Crypto Price should be $ {}'.format(output))
